@@ -3,16 +3,17 @@ const User = require('../models/User');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+var jwt = require('jsonwebtoken');
+var fetchuser = require('../middleware/fetchuser');
 
-const JWT_SECRET = 'VinayIsAGoodBoy';
+const JWT_SECRET = 'Vincaprin';
 
-// Create a user using: POST "/api/auth/createuser". No login require
+// ROUTE 1 : Create a user using: POST "/api/auth/createuser". No login require
 router.post('/createuser', [
    // Create an array for error displaying style
    body('name', 'Enter a valid name').isLength({ min: 3 }),
    body('email', 'Enter a valid email').isEmail(),
-   body('password', 'Password must be atleast 5 characters').isLength({ min: 5 }),
+   body('password', 'Password must be atleast 5 characters').isLength({ min: 5 })
 ], async (req, res) => {
    // If there are errors, return bad request and the errors
    const errors = validationResult(req);
@@ -29,6 +30,7 @@ router.post('/createuser', [
          return res.status(400).json({ error: "Sorry! a user with this email  already exists" })
       }
 
+      // Create a salt for secure the password help of bcrypt.js
       const salt = await bcrypt.genSalt(10);
       const secPass = await bcrypt.hash(req.body.password, salt);
 
@@ -39,6 +41,7 @@ router.post('/createuser', [
          password: secPass,
       })
 
+      // Display a payload from the internal server
       const data = {
          user: {
             id: user.id
@@ -46,10 +49,75 @@ router.post('/createuser', [
       }
       const authToken = jwt.sign(data, JWT_SECRET);
       // res.json(user);
-      res.json({authToken});
+      res.json({ authToken });
    } catch (error) {
       console.log(error.message);
-      res.status(500).send("Some error occured!");
+      res.status(500).send("Internal server error!");
+   }
+})
+
+
+
+
+
+// ROUTE 2 : Authenticate a user using: POST "/api/auth/login". No login require
+router.post('/login', [
+   body('email', 'Enter a valid email').isEmail(),
+   body('password', 'Password cannot be blank').exists()
+], async (req, res) => {
+   // If there are errors, return bad request and the errors
+   const errors = validationResult(req);
+   // Create a validation for error display
+   if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+   }
+
+   // Create a destructure of an array with email & password for fetch the credentials from db
+   const { email, password } = req.body;
+   try {
+      // Match the insert email from db
+      let user = await User.findOne({ email });
+      if (!user) {
+         return res.status(400).json({ error: "Please try to login with correct credentials" });
+      }
+
+      // Compare the both password from db and user insert
+      const passwordCompare = await bcrypt.compare(password, user.password);
+      if (!passwordCompare) {
+         return res.status(400).json({ error: "Please try to login with correct credentials" });
+      }
+
+      // Send a payload from the internal server
+      const data = {
+         user: {
+            id: user.id
+         }
+      }
+      const authToken = jwt.sign(data, JWT_SECRET);
+      // res.json(user);
+      res.json({ authToken });
+   } catch (error) {
+      console.log(error.message);
+      res.status(500).send("Internal server error!");
+   }
+
+})
+
+
+
+
+
+// ROUTE 3 : Get logged in user details using: POST "/api/auth/getuser". Login required
+// middleware : function for request-response cycle to user
+router.post('/getuser', fetchuser, async (req, res) => {
+   try {
+      userId = req.user.id;
+      // Select all data except password
+      const user = await User.findById(userId).select("-password");
+      res.send(user);
+   } catch (error) {
+      console.log(error.message);
+      res.status(500).send("Internal server error!");
    }
 })
 

@@ -13,11 +13,11 @@ const NoteState = (props) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjYjNiMDNlOTA2YzU3ZTdiODZhNDgyIn0sImlhdCI6MTY0MDcwODkxMX0.vzDbQ0XXpF2JyoDw0ioLfP_qcVKecmm5KbBy-xRrN9Q'
+                'auth-token': localStorage.getItem('token')
             }
         });
         const json = await response.json();
-        console.log(json);
+        // console.log(json);
         setNotes(json);
     }
 
@@ -28,7 +28,7 @@ const NoteState = (props) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjYjNiMDNlOTA2YzU3ZTdiODZhNDgyIn0sImlhdCI6MTY0MDcwODkxMX0.vzDbQ0XXpF2JyoDw0ioLfP_qcVKecmm5KbBy-xRrN9Q'
+                'auth-token': localStorage.getItem('token')
             },
             body: JSON.stringify({ title, description, tag })
         });
@@ -44,7 +44,7 @@ const NoteState = (props) => {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjYjNiMDNlOTA2YzU3ZTdiODZhNDgyIn0sImlhdCI6MTY0MDcwODkxMX0.vzDbQ0XXpF2JyoDw0ioLfP_qcVKecmm5KbBy-xRrN9Q'
+                'auth-token': localStorage.getItem('token')
             },
             body: JSON.stringify({ title, description, tag })
         });
@@ -74,10 +74,11 @@ const NoteState = (props) => {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjFjYjNiMDNlOTA2YzU3ZTdiODZhNDgyIn0sImlhdCI6MTY0MDcwODkxMX0.vzDbQ0XXpF2JyoDw0ioLfP_qcVKecmm5KbBy-xRrN9Q'
+                'auth-token': localStorage.getItem('token')
             }
         });
         const json = response.json();
+        console.log(json);
         
         // Logic to delete note in client
         const newNotes = notes.filter((note) => { return note._id !== id });

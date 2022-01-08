@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {useHistory} from 'react-router-dom';
 
-const Login = () => {
+const Login = (props) => {
     const [credentials, setCredentials] = useState({email:"", password:""})
     let history = useHistory();
 
@@ -17,11 +17,12 @@ const Login = () => {
         const json = await  response.json()
         console.log(json);
         if(json.success) {
-            // Save the authToken and redirect
+            // Save the authToken in local storage and redirect
             localStorage.setItem("token", json.authToken);
+            props.showAlert("Logged in successfully", "success");
             history.push("/");
         } else {
-            alert("Invalid Credentials!")
+            props.showAlert("Invalid credentials!", "danger");
         }
     }
 
@@ -32,6 +33,7 @@ const Login = () => {
 
     return (
         <>
+        <h5 className="mt-3">Login to continue with iNotbook</h5>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email address</label>

@@ -2,14 +2,21 @@ import React, { useState, useContext, useEffect, useRef } from 'react'
 import noteContext from '../context/notes/noteContext';
 import Noteitem from './Noteitem';
 import Addnote from './Addnote';
+import { useHistory } from 'react-router-dom';
 
-const Notes = () => {
+const Notes = (props) => {
     const context = useContext(noteContext);
     // Distructuring
     const { notes, getNotes, editNote } = context;
+    let history = useHistory();
     useEffect(() => {
-        getNotes();
-        // eslint-disable-next-line
+        if(localStorage.getItem('token')) {
+            getNotes();
+            // eslint-disable-next-line
+        } else {
+            // redirect on login page
+            history.push("/login");
+        }
     }, [])
 
     const ref = useRef(null);
@@ -26,6 +33,7 @@ const Notes = () => {
         editNote(note.id, note.etitle, note.edescription, note.etag);
         refClose.current.click();
         // addNote(note.title, note.description, note.tag);
+        props.showAlert("Updated successfully", "success");
     }
 
     const onChange = (e) => {
@@ -35,7 +43,7 @@ const Notes = () => {
 
     return (
         <>
-            <Addnote />
+            <Addnote showAlert={props.showAlert}/>
             <button ref={ref} type="button" className="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Launch demo modal
             </button>
@@ -78,7 +86,7 @@ const Notes = () => {
                 <h3>Your notes</h3>
                 <p>{notes.length === 0 && "No notes to display!"}</p>
                 {notes.map((note) => {
-                    return <Noteitem key={note._id} updateNote={updateNote} note={note} />
+                    return <Noteitem key={note._id} updateNote={updateNote} showAlert={props.showAlert} note={note} />
                 })}
             </div>
         </>

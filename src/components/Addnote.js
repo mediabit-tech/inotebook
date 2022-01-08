@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import noteContext from '../context/notes/noteContext';
 
-const Addnote = () => {
+const Addnote = (props) => {
 
     const context = useContext(noteContext);
     // Distructuring
@@ -13,6 +13,7 @@ const Addnote = () => {
         addNote(note.title, note.description, note.tag);
         // Clear the form after submitting
         setNote({ title: "", description: "", tag: "" });
+        props.showAlert("Note added successfully", "success");
     }
 
     const onChange = (e) => {

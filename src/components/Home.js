@@ -1,11 +1,12 @@
 import Notes from "./Notes"
 
-export const Home = () => {
-
+export const Home = (props) => {
+    const { showAlert } = props;
     return (
+
         <div>
             {/* Fetch all Notes from db */}
-            <Notes />
+            <Notes showAlert={showAlert} />
         </div>
     )
 }

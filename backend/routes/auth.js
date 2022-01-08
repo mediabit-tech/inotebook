@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
 var fetchuser = require('../middleware/fetchuser');
+const { success } = require('concurrently/src/defaults');
 
 const JWT_SECRET = 'Vincaprin';
 
@@ -65,6 +66,7 @@ router.post('/login', [
    body('email', 'Enter a valid email').isEmail(),
    body('password', 'Password cannot be blank').exists()
 ], async (req, res) => {
+   let success = false;
    // If there are errors, return bad request and the errors
    const errors = validationResult(req);
    // Create a validation for error display
@@ -78,13 +80,15 @@ router.post('/login', [
       // Match the insert email from db
       let user = await User.findOne({ email });
       if (!user) {
-         return res.status(400).json({ error: "Please try to login with correct credentials" });
+         success = false;
+         return res.status(400).json({ success, error: "Please try to login with correct credentials" });
       }
 
       // Compare the both password from db and user insert
       const passwordCompare = await bcrypt.compare(password, user.password);
       if (!passwordCompare) {
-         return res.status(400).json({ error: "Please try to login with correct credentials" });
+         success = false;
+         return res.status(400).json({ success, error: "Please try to login with correct credentials" });
       }
 
       // Send a payload from the internal server
@@ -94,8 +98,9 @@ router.post('/login', [
          }
       }
       const authToken = jwt.sign(data, JWT_SECRET);
+      success = true;
       // res.json(user);
-      res.json({ authToken });
+      res.json({ success, authToken });
    } catch (error) {
       console.log(error.message);
       res.status(500).send("Internal server error!");
